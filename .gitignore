@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Hardhat artifacts and cache
+artifacts/
+cache/
+bin/
+
+# Coverage
+coverage/
+coverage.json
+
+# TypeChain
+typechain/
+typechain-types/
+
+# Deployed addresses (optional: remove if you want to track these)
+# deployed-addresses.json
+
+# Misc
+.DS_Store
+*.log
