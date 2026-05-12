@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 // ERC-20: Standard Token Interface
 // Source: https://eips.ethereum.org/EIPS/eip-20
