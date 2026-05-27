@@ -80,8 +80,8 @@ async function main() {
   ];
 
   const USDC_ADDRESS =
-    process.env.USDC_ADDRESS || "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
-  const MIN_MERCHANT_STAKE = process.env.MIN_MERCHANT_STAKE_USDC || "1000000"; // 1 USDC if 6 decimals
+    process.env.USDC_ADDRESS || "0x052FA28895F1dd4A8fdF7c373c9dB6F35F1604e9";
+  const MIN_MERCHANT_STAKE = process.env.MIN_MERCHANT_STAKE_USDC || "300000000"; // 1 USDC if 6 decimals
 
   const initCalldata = DiamondInit.interface.encodeFunctionData("init", [
     USDC_ADDRESS,
