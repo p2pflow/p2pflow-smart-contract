@@ -17,8 +17,8 @@ coverage.json
 typechain/
 typechain-types/
 
-# Deployed addresses (optional: remove if you want to track these)
-# deployed-addresses.json
+# Deployed addresses
+deployed-addresses.json
 
 # Misc
 .DS_Store
