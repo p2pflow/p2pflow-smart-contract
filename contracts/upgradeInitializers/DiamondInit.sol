@@ -21,6 +21,7 @@ contract DiamondInit is Modifiers {
     /// @param _minMerchantStakeUsdc minimum at registration
     /// @dev `msg.sender` is the account that invoked `diamondCut` — stored as platform admin
     function init(address _usdcToken, uint256 _minMerchantStakeUsdc) external {
+        require(!s.config.initialized, "Already initialized");
         require(_usdcToken != address(0), "Zero USDC");
 
         LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
@@ -33,5 +34,10 @@ contract DiamondInit is Modifiers {
         s.config.minMerchantStakeUsdc = _minMerchantStakeUsdc;
         s.config.paused = false;
         s.config.admin = msg.sender;
+        s.config.initialized = true;
+
+        // Prime the reentrancy slot to the "not entered" sentinel so the first
+        // guarded call doesn't burn a cold-slot SSTORE going from 0 -> 2.
+        s._reentrancyStatus = 1;
     }
 }

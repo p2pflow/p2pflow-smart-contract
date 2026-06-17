@@ -67,6 +67,8 @@ struct PlatformConfig {
     address usdcToken;
     bool paused;
     uint256 minMerchantStakeUsdc;
+    /// @dev Set once by DiamondInit; later upgrades must NOT re-initialize.
+    bool initialized;
 }
 
 struct AppStorage {
@@ -74,8 +76,10 @@ struct AppStorage {
     mapping(address => Merchant) merchants;
     address[] merchantList;
     mapping(bytes32 => PaymentChannel) channels;
-    /// key = keccak256(abi.encodePacked(wallet, bankName, accountLast4))
+    /// key = keccak256(abi.encodePacked(wallet, normalizedBankName, accountLast4))
     mapping(bytes32 => bool) channelDuplicateGuard;
+    /// @dev Diamond-safe reentrancy lock. 0 = unset (treated as not entered), 1 = not entered, 2 = entered.
+    uint256 _reentrancyStatus;
 }
 
 contract Modifiers {
@@ -89,5 +93,14 @@ contract Modifiers {
     modifier notPaused() {
         require(!s.config.paused, "Platform is paused");
         _;
+    }
+
+    /// @notice Diamond-safe reentrancy guard. Backed by an AppStorage slot so all facets
+    ///         that delegatecall into the Diamond share the same lock.
+    modifier nonReentrant() {
+        require(s._reentrancyStatus != 2, "ReentrancyGuard: reentrant call");
+        s._reentrancyStatus = 2;
+        _;
+        s._reentrancyStatus = 1;
     }
 }

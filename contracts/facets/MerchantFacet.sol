@@ -10,11 +10,13 @@ import {
     ChannelStatus,
     ChannelAvailability
 } from "../shared/AppStorage.sol";
-import { IERC20 } from "../interfaces/IERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { LibMerchants } from "../libraries/LibMerchants.sol";
 
 /// @notice Merchant registration, USDC liquidity, payment channels, and merchant-facing admin actions.
 contract MerchantFacet is Modifiers {
+    using SafeERC20 for IERC20;
     event MerchantRegistered(address indexed wallet, uint256 usdcLiquidity);
     event UsdcDeposited(address indexed wallet, uint256 amount);
     event UsdcWithdrawn(address indexed wallet, uint256 amount);
@@ -42,12 +44,12 @@ contract MerchantFacet is Modifiers {
 
     // ── Registration & USDC liquidity ─────────────────────────────────────────
 
-    function registerMerchant(uint256 stakeAmount, string calldata telegramUsername) external notPaused {
+    function registerMerchant(uint256 stakeAmount, string calldata telegramUsername) external notPaused nonReentrant {
         require(s.merchants[msg.sender].wallet == address(0), "Already registered");
         require(stakeAmount >= s.config.minMerchantStakeUsdc, "Below minimum stake");
         require(bytes(telegramUsername).length > 0, "Telegram required");
 
-        IERC20(s.config.usdcToken).transferFrom(msg.sender, address(this), stakeAmount);
+        IERC20(s.config.usdcToken).safeTransferFrom(msg.sender, address(this), stakeAmount);
 
         Merchant storage m = s.merchants[msg.sender];
         m.wallet = msg.sender;
@@ -62,14 +64,14 @@ contract MerchantFacet is Modifiers {
         emit MerchantRegistered(msg.sender, stakeAmount);
     }
 
-    function depositStake(uint256 amount) external notPaused {
+    function depositStake(uint256 amount) external notPaused nonReentrant {
         Merchant storage m = s.merchants[msg.sender];
         require(m.wallet != address(0), "Not a merchant");
         require(m.accountStatus == MerchantAccountStatus.ACTIVE, "Account not active");
         require(!m.unstakePending, "Unstake pending");
         require(amount > 0, "Amount must be > 0");
 
-        IERC20(s.config.usdcToken).transferFrom(msg.sender, address(this), amount);
+        IERC20(s.config.usdcToken).safeTransferFrom(msg.sender, address(this), amount);
         m.usdcLiquidity += amount;
 
         emit UsdcDeposited(msg.sender, amount);
@@ -123,10 +125,13 @@ contract MerchantFacet is Modifiers {
         require(m.accountStatus == MerchantAccountStatus.ACTIVE, "Account not active");
         require(bytes(bankName).length > 0, "bankName required");
         require(bytes(accountLast4).length == 4, "accountLast4 must be 4 chars");
+        require(LibMerchants.isAllAsciiDigits(accountLast4), "accountLast4 must be digits");
         require(bytes(upiId).length > 0, "upiId required");
         require(bytes(label).length > 0, "label required");
 
-        bytes32 dupKey = keccak256(abi.encodePacked(msg.sender, bankName, accountLast4));
+        bytes memory normName = LibMerchants.normalizeBankName(bankName);
+        require(normName.length > 0, "bankName required");
+        bytes32 dupKey = keccak256(abi.encodePacked(msg.sender, normName, accountLast4));
         require(!s.channelDuplicateGuard[dupKey], "Channel already exists");
         s.channelDuplicateGuard[dupKey] = true;
 
@@ -182,7 +187,11 @@ contract MerchantFacet is Modifiers {
         chFrom.status = ChannelStatus.TERMINATED;
         chFrom.availability = ChannelAvailability.INACTIVE;
 
-        bytes32 dupKey = keccak256(abi.encodePacked(chFrom.merchant, chFrom.bankName, chFrom.accountLast4));
+        bytes32 dupKey = keccak256(abi.encodePacked(
+            chFrom.merchant,
+            LibMerchants.normalizeBankName(chFrom.bankName),
+            chFrom.accountLast4
+        ));
         s.channelDuplicateGuard[dupKey] = false;
 
         emit ChannelTerminated(fromChannelId, msg.sender);
@@ -216,12 +225,16 @@ contract MerchantFacet is Modifiers {
         ch.status = ChannelStatus.REJECTED;
         ch.reviewedAt = block.timestamp;
         ch.availability = ChannelAvailability.INACTIVE;
-        bytes32 dupKey = keccak256(abi.encodePacked(ch.merchant, ch.bankName, ch.accountLast4));
+        bytes32 dupKey = keccak256(abi.encodePacked(
+            ch.merchant,
+            LibMerchants.normalizeBankName(ch.bankName),
+            ch.accountLast4
+        ));
         s.channelDuplicateGuard[dupKey] = false;
         emit ChannelRejected(channelId, ch.merchant);
     }
 
-    function approveMerchantUnstake(address wallet) external onlyAdmin {
+    function approveMerchantUnstake(address wallet) external onlyAdmin nonReentrant {
         Merchant storage m = s.merchants[wallet];
         require(m.wallet != address(0), "Not found");
         require(m.unstakePending, "No unstake request");
@@ -235,7 +248,7 @@ contract MerchantFacet is Modifiers {
         m.unstakeRequestedAmount = 0;
         m.accountStatus = MerchantAccountStatus.ACTIVE;
 
-        IERC20(s.config.usdcToken).transfer(wallet, amount);
+        IERC20(s.config.usdcToken).safeTransfer(wallet, amount);
         emit UsdcWithdrawn(wallet, amount);
     }
 
