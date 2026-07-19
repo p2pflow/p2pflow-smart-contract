@@ -34,7 +34,8 @@ contract OrderFacet is Modifiers {
         uint256 usdcAmount,
         uint256 fiatAmount,
         uint256 price,
-        uint256 createdAt
+        uint256 createdAt,
+        uint256 orderNumber
     );
     event OrderAssigned(bytes32 indexed orderId, address indexed merchant, uint256 assignedAt);
     event OrderAccepted(
@@ -360,11 +361,12 @@ contract OrderFacet is Modifiers {
         o.fiatAmount = fiatAmount;
         o.price = price;
         o.createdAt = block.timestamp;
+        o.orderNumber = s.orderNonce;
 
         s.orderIds.push(orderId);
         s.userOrderIds[msg.sender].push(orderId);
 
-        emit OrderCreated(orderId, msg.sender, orderType, usdcAmount, fiatAmount, price, block.timestamp);
+        emit OrderCreated(orderId, msg.sender, orderType, usdcAmount, fiatAmount, price, block.timestamp, o.orderNumber);
     }
 
     function _assignBuyMerchants(bytes32 orderId, uint256 usdcAmount)

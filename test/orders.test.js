@@ -181,6 +181,7 @@ describe("OrderFacet — BUY happy path", function () {
     const orderId = evt.args.orderId;
 
     let o = await fx.orders.getOrder(orderId);
+    expect(o.orderNumber).to.equal(1n);
     expect(o.status).to.equal(OrderStatus.CREATED);
     expect(o.orderType).to.equal(OrderType.BUY);
     expect(o.usdcAmount).to.equal(usdcAmount);
@@ -248,6 +249,22 @@ describe("OrderFacet — BUY happy path", function () {
     await expect(
       fx.orders.connect(fx.m1).confirmPayment(orderId)
     ).to.be.revertedWith("Not PAID");
+  });
+
+  it("assigns continuous human-readable order numbers", async function () {
+    const tx1 = await fx.orders.connect(fx.user).createBuyOrder(ethers.parseUnits("10", 6));
+    const rc1 = await tx1.wait();
+    const orderId1 = rc1.logs
+      .map((l) => { try { return fx.orders.interface.parseLog(l); } catch { return null; } })
+      .find((p) => p && p.name === "OrderCreated").args.orderId;
+    const tx2 = await fx.orders.connect(fx.user).createBuyOrder(ethers.parseUnits("20", 6));
+    const rc2 = await tx2.wait();
+    const orderId2 = rc2.logs
+      .map((l) => { try { return fx.orders.interface.parseLog(l); } catch { return null; } })
+      .find((p) => p && p.name === "OrderCreated").args.orderId;
+
+    expect((await fx.orders.getOrder(orderId1)).orderNumber).to.equal(1n);
+    expect((await fx.orders.getOrder(orderId2)).orderNumber).to.equal(2n);
   });
 });
 

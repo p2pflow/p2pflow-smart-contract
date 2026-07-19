@@ -83,6 +83,8 @@ struct Order {
     DisputeResult disputeResult;
     address[] assignedMerchants;
     bool riskReleased; // true once risk_usdc has been released (SELL only)
+    /// @notice Human-readable sequential id. First order is #1, next is #2, etc.
+    uint256 orderNumber;
 }
 
 struct Merchant {
