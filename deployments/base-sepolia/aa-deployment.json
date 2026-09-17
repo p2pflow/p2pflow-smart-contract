@@ -1,0 +1,13 @@
+{
+  "chainId": 84532,
+  "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+  "accountImplementation": "0x65d163e9dBc42B0b0E4aF65e4A150DCFaa4E341D",
+  "paymaster": "0x9c41e4750000aDD798D64160a58A32300A7d0833",
+  "owner": "0xA486891ED5Abd2C3B1bB2a20F36B9456e32c7866",
+  "verifyingSigner": "0xE92f80d1ACa4236E0B1164e828cd503b143ba675",
+  "depositWei": "10000000000000000",
+  "accountDeploymentTransactionHash": "0xb1bb24445889a1374f27e857f46c6219cc8717f9f4b0bebbe15b39529d59f9b0",
+  "paymasterDeploymentTransactionHash": "0x825051e9ba85e460a9b90bf47b0cfff2df7316a042892d10860c7ec1ef90ebcc",
+  "depositTransactionHash": "0xfb90876fa564a5cf235f86d7543609a1f2b819785aed14a9d67f96e3c1eaf9bf",
+  "deploymentBlock": 46862745
+}

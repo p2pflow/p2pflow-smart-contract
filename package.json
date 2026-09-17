@@ -16,6 +16,8 @@
     "deploy:base-sepolia:mock": "bash scripts/deploy-base-sepolia-mock.sh",
     "upgrade:base-sepolia:order:check": "node scripts/upgrade-order-facet.js",
     "upgrade:base-sepolia:order": "node scripts/upgrade-order-facet.js --broadcast",
+    "deploy:base-sepolia:aa:check": "node scripts/deploy-aa-base-sepolia.js --check",
+    "deploy:base-sepolia:aa": "node scripts/deploy-aa-base-sepolia.js --broadcast",
     "node": "hardhat node"
   },
   "devDependencies": {
@@ -24,6 +26,7 @@
     "playwright": "1.62.1"
   },
   "dependencies": {
+    "@account-abstraction/contracts": "0.7.0",
     "@openzeppelin/contracts": "^5.0.0"
   }
 }

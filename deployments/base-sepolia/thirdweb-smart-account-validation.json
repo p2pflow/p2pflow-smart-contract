@@ -1,0 +1,20 @@
+{
+  "chainId": 84532,
+  "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+  "factory": "0x4be0ddfebca9a5a4a617dee4dece99e7c862dceb",
+  "paymaster": "0x9c41e4750000aDD798D64160a58A32300A7d0833",
+  "thirdwebOwner": "0xb7C3125A86C9E91555a6C454a7767e5eA269B781",
+  "smartAccount": "0x2079C351bE5317606B31804fFd827A07f36dB5ee",
+  "ownerEthBeforeWei": "0",
+  "ownerEthAfterWei": "0",
+  "smartAccountEthBeforeWei": "0",
+  "smartAccountEthAfterWei": "0",
+  "paymasterDepositBeforeWei": "9997871218000000",
+  "paymasterDepositAfterWei": "9993836513300000",
+  "gasSponsoredWei": "4034704700000",
+  "userOperationHash": "0xeb2c6342a95956a0710c1ae7158a59871ad740920d0df9f5a4bcc6ed67fb07a1",
+  "transactionHash": "0xcdc99c9a03e1dbe3ac3af092d5db4b8ca6f128e24f69394f07a29454bb38b996",
+  "orderId": "0x03f72e235b0cb645079fc8cf6e9476c5b371d4a4e3f95b477defd82415515ec3",
+  "orderNumber": "48",
+  "success": true
+}
